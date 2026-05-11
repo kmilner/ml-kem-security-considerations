@@ -149,7 +149,7 @@ A KEM (such as ML-KEM) sounds like it may be a drop-in replacement for
 Diffie-Hellman (and in some scenarios, it can be).
 However this is not always the case. In Diffie-Hellman, the parties
 exchange two public keys, whereas in a KEM, the ciphertext is necessarily a
-function of Alice&apos;s public key, and thus can only be useful only with that
+function of Alice&apos;s public key, and thus can only be useful with that
 specific public key. Additionally, a KEM differs from Diffie-Hellman which is
 asynchronous and non-interactive. In particular, for an &apos;ephemeral-ephemeral&apos;
 key establishment, an encapsulator cannot pre-emptively initiate a key
