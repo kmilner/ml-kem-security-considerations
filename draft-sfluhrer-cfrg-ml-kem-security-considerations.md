@@ -203,7 +203,7 @@ key. Notably, this means a public key can be &apos;poisoned&apos; such that a fu
 adversary can recover the private key even though it will appear correct in
 normal usage.
 
-To try to prevent such errors before a keypair is used, {{FIPS203}} requires that an
+To try to prevent such errors before a keypair is used, FIPS requires that an
 approved implementation perform a Pair-wise Consistency Test (PCT) on each
 freshly generated keypair: the implementation performs an encapsulation
 followed by a decapsulation against the new keypair, and verifies that
