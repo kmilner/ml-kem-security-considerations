@@ -37,7 +37,7 @@ author:
   org: Ericsson
   email: john.mattsson@ericsson.com
 - fullname: Kevin Milner
-  organization: Quantinuum
+  organization: Individual
   email: kamilner@kamilner.ca
 - fullname: Daniel Shiu
   organization: Arqit Quantum Inc
@@ -203,6 +203,20 @@ key. Notably, this means a public key can be &apos;poisoned&apos; such that a fu
 adversary can recover the private key even though it will appear correct in
 normal usage.
 
+To try to prevent such errors before a keypair is used, {{FIPS203}} requires that an
+approved implementation perform a Pair-wise Consistency Test (PCT) on each
+freshly generated keypair: the implementation performs an encapsulation
+followed by a decapsulation against the new keypair, and verifies that
+both sides derive the same shared secret.  The purpose of the test is to
+catch key generation errors that would result in a non-functional or
+weakened keypair - whether from a software bug, a hardware fault, or
+deliberate fault injection - before the keypair is exported or used for
+any real exchange.  The PCT will reliably detect a keypair that is
+non-functional, but it cannot rule out the more subtle &apos;poisoned&apos; keys
+described above, which decapsulate honestly generated ciphertexts
+correctly while still leaking information through decapsulation failures
+on adversarially chosen ciphertexts.
+
 ## ML-KEM Encapsulation
 
 The second step is for Bob to generate a ciphertext and a shared secret key.
@@ -244,9 +258,9 @@ Intermediate data other than the shared secret key and the matrix A_hat must be 
 The matrix A_hat may be saved for later Decapsulation operations with the same decapsulation key.
 
 If the exchange is successful, the 32-byte key generated on both sides will
-be the same. 
+be the same.
 
-It may be that some libraries combine the validation and the encapsulation
+It may be that some libraries combine the validation and the decapsulation
 step; implementations should determine whether the library they are using does. For static
 public keys, the Decapsulation Key Check only needs to be performed once.
 
@@ -325,12 +339,16 @@ function inside the ML-KEM.Decaps(). Substituting the public key Alice sends
 Bob by another public key chosen by the attacker will not help the attacker
 get any information about Alice&apos;s private key, it would just make Alice and
 Bob not have a same shared secret key. However, if it is possible to
-substitute the copy of the public key for both Alice and Bob, an attacker can
-introduce a malicious public key where the same private key can be used for
-decapsulation, but the probability of decryption failure is marginally
-higher. As decryption failures can leak information about the secret
-decapulation key, it is important that Alice keeps a secure copy of the
-public key as part of her secret key. For practical purposes, IND-CCA2 means
+substitute the stored copy of the public key on both sides (Alice&apos;s copy,
+which is bound into her decapsulation key, and Bob&apos;s copy, which he
+encapsulates against), an attacker can introduce a malicious public key
+where the same private key can be used for decapsulation, but the
+probability of decryption failure is marginally higher.  This is the same
+&apos;poisoning&apos; attack described in the Key Generation section above, but
+performed against the stored public key after generation rather than
+during generation itself; the consequence is the same in either case.  As decryption failures can leak information about the
+secret decapsulation key, it is important that Alice keeps a secure copy
+of the public key as part of her secret key. For practical purposes, IND-CCA2 means
 that ML-KEM is secure to use with static public keys.
 
 ML-KEM requires that a source of random bits with security strength greater than or equal to the security strength of the ML-KEM parameter set be used when generating the keypair and ciphertext during ML-KEM.KeyGen() and ML-KEM.Encaps() respectively.
